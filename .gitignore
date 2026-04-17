@@ -66,3 +66,7 @@ pip-wheel-metadata/
 
 
 .idea
+
+# Commit0
+.aider*
+logs/
