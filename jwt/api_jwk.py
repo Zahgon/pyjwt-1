@@ -104,8 +104,7 @@ class PyJWK:
 
         :rtype: PyJWK
         """
-        obj = json.loads(data)
-        return PyJWK.from_dict(obj, algorithm)
+        pass
 
     @property
     def key_type(self) -> str | None:
@@ -113,7 +112,7 @@ class PyJWK:
 
         :rtype: str or None
         """
-        return self._jwk_data.get("kty", None)
+        pass
 
     @property
     def key_id(self) -> str | None:
@@ -121,7 +120,7 @@ class PyJWK:
 
         :rtype: str or None
         """
-        return self._jwk_data.get("kid", None)
+        pass
 
     @property
     def public_key_use(self) -> str | None:
@@ -129,7 +128,7 @@ class PyJWK:
 
         :rtype: str or None
         """
-        return self._jwk_data.get("use", None)
+        pass
 
 
 class PyJWKSet:
@@ -163,8 +162,7 @@ class PyJWKSet:
 
     @staticmethod
     def from_json(data: str) -> PyJWKSet:
-        obj = json.loads(data)
-        return PyJWKSet.from_dict(obj)
+        pass
 
     def __getitem__(self, kid: str) -> PyJWK:
         for key in self.keys:

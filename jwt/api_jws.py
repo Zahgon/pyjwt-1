@@ -54,7 +54,7 @@ class PyJWS:
 
     @staticmethod
     def _get_default_options() -> SigOptions:
-        return {"verify_signature": True, "enforce_minimum_key_length": False}
+        pass
 
     def register_algorithm(self, alg_id: str, alg_obj: Algorithm) -> None:
         """
@@ -94,7 +94,7 @@ class PyJWS:
 
         :rtype: list[str]
         """
-        return list(self._valid_algs)
+        pass
 
     def get_algorithm_by_name(self, alg_name: str) -> Algorithm:
         """

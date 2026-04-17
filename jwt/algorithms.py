@@ -185,21 +185,7 @@ class Algorithm(ABC):
 
         If there is no hash algorithm, raises a NotImplementedError.
         """
-        # lookup self.hash_alg if defined in a way that mypy can understand
-        hash_alg = getattr(self, "hash_alg", None)
-        if hash_alg is None:
-            raise NotImplementedError
-
-        if (
-            has_crypto
-            and isinstance(hash_alg, type)
-            and issubclass(hash_alg, hashes.HashAlgorithm)
-        ):
-            digest = hashes.Hash(hash_alg(), backend=default_backend())
-            digest.update(bytestr)
-            return bytes(digest.finalize())
-        else:
-            return bytes(hash_alg(bytestr).digest())
+        pass
 
     def check_crypto_key_type(self, key: PublicKeyTypes | PrivateKeyTypes) -> None:
         """Check that the key belongs to the right cryptographic family.
@@ -343,15 +329,7 @@ class HMACAlgorithm(Algorithm):
 
     @staticmethod
     def to_jwk(key_obj: str | bytes, as_dict: bool = False) -> JWKDict | str:
-        jwk = {
-            "k": base64url_encode(force_bytes(key_obj)).decode(),
-            "kty": "oct",
-        }
-
-        if as_dict:
-            return jwk
-        else:
-            return json.dumps(jwk)
+        pass
 
     @staticmethod
     def from_jwk(jwk: str | JWKDict) -> bytes:
@@ -458,42 +436,7 @@ if has_crypto:
 
         @staticmethod
         def to_jwk(key_obj: AllowedRSAKeys, as_dict: bool = False) -> JWKDict | str:
-            obj: dict[str, Any] | None = None
-
-            if hasattr(key_obj, "private_numbers"):
-                # Private key
-                numbers = key_obj.private_numbers()
-
-                obj = {
-                    "kty": "RSA",
-                    "key_ops": ["sign"],
-                    "n": to_base64url_uint(numbers.public_numbers.n).decode(),
-                    "e": to_base64url_uint(numbers.public_numbers.e).decode(),
-                    "d": to_base64url_uint(numbers.d).decode(),
-                    "p": to_base64url_uint(numbers.p).decode(),
-                    "q": to_base64url_uint(numbers.q).decode(),
-                    "dp": to_base64url_uint(numbers.dmp1).decode(),
-                    "dq": to_base64url_uint(numbers.dmq1).decode(),
-                    "qi": to_base64url_uint(numbers.iqmp).decode(),
-                }
-
-            elif hasattr(key_obj, "verify"):
-                # Public key
-                numbers = key_obj.public_numbers()
-
-                obj = {
-                    "kty": "RSA",
-                    "key_ops": ["verify"],
-                    "n": to_base64url_uint(numbers.n).decode(),
-                    "e": to_base64url_uint(numbers.e).decode(),
-                }
-            else:
-                raise InvalidKeyError("Not a public or private key")
-
-            if as_dict:
-                return obj
-            else:
-                return json.dumps(obj)
+            pass
 
         @staticmethod
         def from_jwk(jwk: str | JWKDict) -> AllowedRSAKeys:
@@ -676,47 +619,7 @@ if has_crypto:
 
         @staticmethod
         def to_jwk(key_obj: AllowedECKeys, as_dict: bool = False) -> JWKDict | str:
-            if isinstance(key_obj, EllipticCurvePrivateKey):
-                public_numbers = key_obj.public_key().public_numbers()
-            elif isinstance(key_obj, EllipticCurvePublicKey):
-                public_numbers = key_obj.public_numbers()
-            else:
-                raise InvalidKeyError("Not a public or private key")
-
-            if isinstance(key_obj.curve, SECP256R1):
-                crv = "P-256"
-            elif isinstance(key_obj.curve, SECP384R1):
-                crv = "P-384"
-            elif isinstance(key_obj.curve, SECP521R1):
-                crv = "P-521"
-            elif isinstance(key_obj.curve, SECP256K1):
-                crv = "secp256k1"
-            else:
-                raise InvalidKeyError(f"Invalid curve: {key_obj.curve}")
-
-            obj: dict[str, Any] = {
-                "kty": "EC",
-                "crv": crv,
-                "x": to_base64url_uint(
-                    public_numbers.x,
-                    bit_length=key_obj.curve.key_size,
-                ).decode(),
-                "y": to_base64url_uint(
-                    public_numbers.y,
-                    bit_length=key_obj.curve.key_size,
-                ).decode(),
-            }
-
-            if isinstance(key_obj, EllipticCurvePrivateKey):
-                obj["d"] = to_base64url_uint(
-                    key_obj.private_numbers().private_value,
-                    bit_length=key_obj.curve.key_size,
-                ).decode()
-
-            if as_dict:
-                return obj
-            else:
-                return json.dumps(obj)
+            pass
 
         @staticmethod
         def from_jwk(jwk: str | JWKDict) -> AllowedECKeys:
@@ -917,50 +820,7 @@ if has_crypto:
 
         @staticmethod
         def to_jwk(key: AllowedOKPKeys, as_dict: bool = False) -> JWKDict | str:
-            if isinstance(key, (Ed25519PublicKey, Ed448PublicKey)):
-                x = key.public_bytes(
-                    encoding=Encoding.Raw,
-                    format=PublicFormat.Raw,
-                )
-                crv = "Ed25519" if isinstance(key, Ed25519PublicKey) else "Ed448"
-
-                obj = {
-                    "x": base64url_encode(force_bytes(x)).decode(),
-                    "kty": "OKP",
-                    "crv": crv,
-                }
-
-                if as_dict:
-                    return obj
-                else:
-                    return json.dumps(obj)
-
-            if isinstance(key, (Ed25519PrivateKey, Ed448PrivateKey)):
-                d = key.private_bytes(
-                    encoding=Encoding.Raw,
-                    format=PrivateFormat.Raw,
-                    encryption_algorithm=NoEncryption(),
-                )
-
-                x = key.public_key().public_bytes(
-                    encoding=Encoding.Raw,
-                    format=PublicFormat.Raw,
-                )
-
-                crv = "Ed25519" if isinstance(key, Ed25519PrivateKey) else "Ed448"
-                obj = {
-                    "x": base64url_encode(force_bytes(x)).decode(),
-                    "d": base64url_encode(force_bytes(d)).decode(),
-                    "kty": "OKP",
-                    "crv": crv,
-                }
-
-                if as_dict:
-                    return obj
-                else:
-                    return json.dumps(obj)
-
-            raise InvalidKeyError("Not a public or private key")
+            pass
 
         @staticmethod
         def from_jwk(jwk: str | JWKDict) -> AllowedOKPKeys:

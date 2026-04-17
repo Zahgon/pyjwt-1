@@ -50,27 +50,10 @@ class PyJWT:
 
     @staticmethod
     def _get_default_options() -> FullOptions:
-        return {
-            "verify_signature": True,
-            "verify_exp": True,
-            "verify_nbf": True,
-            "verify_iat": True,
-            "verify_aud": True,
-            "verify_iss": True,
-            "verify_sub": True,
-            "verify_jti": True,
-            "require": [],
-            "strict_aud": False,
-            "enforce_minimum_key_length": False,
-        }
+        pass
 
     def _get_sig_options(self) -> SigOptions:
-        return {
-            "verify_signature": self.options["verify_signature"],
-            "enforce_minimum_key_length": self.options.get(
-                "enforce_minimum_key_length", False
-            ),
-        }
+        pass
 
     def _merge_options(self, options: Options | None = None) -> FullOptions:
         if options is None:

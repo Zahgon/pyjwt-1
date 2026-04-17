@@ -157,17 +157,7 @@ class PyJWKClient:
         :rtype: list[PyJWK]
         :raises PyJWKClientError: If no signing keys are found.
         """
-        jwk_set = self.get_jwk_set(refresh)
-        signing_keys = [
-            jwk_set_key
-            for jwk_set_key in jwk_set.keys
-            if jwk_set_key.public_key_use in ["sig", None] and jwk_set_key.key_id
-        ]
-
-        if not signing_keys:
-            raise PyJWKClientError("The JWKS endpoint did not contain any signing keys")
-
-        return signing_keys
+        pass
 
     def get_signing_key(self, kid: str) -> PyJWK:
         """Return the signing key matching the given ``kid``.
@@ -182,20 +172,7 @@ class PyJWKClient:
         :raises PyJWKClientError: If no matching key is found after
             refreshing.
         """
-        signing_keys = self.get_signing_keys()
-        signing_key = self.match_kid(signing_keys, kid)
-
-        if not signing_key:
-            # If no matching signing key from the jwk set, refresh the jwk set and try again.
-            signing_keys = self.get_signing_keys(refresh=True)
-            signing_key = self.match_kid(signing_keys, kid)
-
-            if not signing_key:
-                raise PyJWKClientError(
-                    f'Unable to find a signing key that matches: "{kid}"'
-                )
-
-        return signing_key
+        pass
 
     def get_signing_key_from_jwt(self, token: str | bytes) -> PyJWK:
         """Return the signing key for a JWT by reading its ``kid`` header.
@@ -208,9 +185,7 @@ class PyJWKClient:
         :returns: The matching signing key.
         :rtype: PyJWK
         """
-        unverified = decode_token(token, options={"verify_signature": False})
-        header = unverified["header"]
-        return self.get_signing_key(header.get("kid"))
+        pass
 
     @staticmethod
     def match_kid(signing_keys: list[PyJWK], kid: str) -> PyJWK | None:
@@ -223,11 +198,4 @@ class PyJWKClient:
         :returns: The matching key, or ``None`` if not found.
         :rtype: PyJWK or None
         """
-        signing_key = None
-
-        for key in signing_keys:
-            if key.key_id == kid:
-                signing_key = key
-                break
-
-        return signing_key
+        pass
